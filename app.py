@@ -5,6 +5,17 @@ Created on Wed Feb 20 18:14:41 2019
 
 @author: ke
 """
+import dash
+import os
+import dash_core_components as dcc
+import dash_html_components as html
+import pandas as pd
+
+
+from demo import demo_layout, demo_callbacks
+from local import local_layout, local_callbacks
+
+
 
 import matplotlib
 matplotlib.use('Agg')
@@ -14,8 +25,8 @@ import root_pandas
 import pandas as pd
 import hepvector
 from hepvector.numpyvector import Vector3D,LorentzVector
-dft=root_pandas.read_root('model_tree.root',key='DecayTree')
-df=dft.head(10)
+
+df=root_pandas.read_root('model_tree.root',key='DecayTree')
 
 import plotly
 import plotly.graph_objs as go
@@ -30,17 +41,7 @@ from plotly.graph_objs import Scatter
 import numpy as np
 from numpy import cos,sin,tan,sqrt,absolute,real,conjugate,imag,abs,max,min
 
-
-
-
-plotly.tools.set_credentials_file(username='wke', api_key='gUC6DxjFj6NsTBewEDb5')
-
-
-plotly.tools.set_config_file(world_readable=True,
-                             sharing='public')
-
-
-df=root_pandas.read_root('model_tree.root',key='DecayTree')
+###This is the data###
 
 
 B=LorentzVector(df['B_PX_TRUE'],df['B_PY_TRUE'],df['B_PZ_TRUE'],df['B_E_TRUE'])
@@ -65,22 +66,6 @@ pitau3=LorentzVector(df['Tau_Pi3_PX_TRUE'],df['Tau_Pi3_PY_TRUE'],df['Tau_Pi3_PZ_
 
 nutau=LorentzVector(df['Tau_nu_PX_TRUE'],df['Tau_nu_PY_TRUE'],df['Tau_nu_PZ_TRUE'],df['Tau_nu_E_TRUE'])
 
-
-
-newB=B.boost(-B.boostp3)
-newDst=Dst.boost(-B.boostp3)
-newtau=tau.boost(-B.boostp3)
-newD0=D0.boost(-B.boostp3)
-newnuB=nuB.boost(-B.boostp3)
-newK=K.boost(-B.boostp3)
-newpiDst=piDst.boost(-B.boostp3)
-newpitau1=pitau1.boost(-B.boostp3)
-newpitau2=pitau2.boost(-B.boostp3)
-newpitau3=pitau3.boost(-B.boostp3)
-newnutau=nutau.boost(-B.boostp3)
-newpiK=piK.boost(-B.boostp3)
-
-
 nouvtau=tau.boost(-(tau+nuB).boostp3)
 nouvnu=nuB.boost(-(tau+nuB).boostp3)
 nouvpi=piDst.boost(-(piDst+D0).boostp3)
@@ -99,26 +84,58 @@ costhetast=unitD0.dot(unitDst)
 costhetal=unitDst.dot(unittau)
 
 chi=np.arccos(coski)
-thetast=np.arccos(costhetast)
-thetal=np.arccos(costhetal)
+
+newB=B.boost(-B.boostp3)
+newDst=Dst.boost(-B.boostp3)
+newtau=tau.boost(-B.boostp3)
+newD0=D0.boost(-B.boostp3)
+newnuB=nuB.boost(-B.boostp3)
+newK=K.boost(-B.boostp3)
+newpiDst=piDst.boost(-B.boostp3)
+newpitau1=pitau1.boost(-B.boostp3)
+newpitau2=pitau2.boost(-B.boostp3)
+newpitau3=pitau3.boost(-B.boostp3)
+newnutau=nutau.boost(-B.boostp3)
+newpiK=piK.boost(-B.boostp3)
 
 
-x, y, z = thetast,thetal,chi
 
-trace1 = go.Scatter3d(
-    x=x,
-    y=y,
-    z=z,
-    mode='markers',
-    marker=dict(
-        size=5,
-        color=z,                
-        colorscale='Viridis',  
-        opacity=0.8
+histo=go.Histogram(x=costhetast)
+
+
+###This is the dash code###
+
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']  #A modifier
+
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+
+app.layout = html.Div(children=[
+    html.H1(children='Histogram'),
+    html.Div(children='''
+        Dash: My first histogram 
+    '''),
+
+    dcc.Graph(
+        id='example-graph',
+        figure={
+            'data': [
+              histo,
+            ],
+            'layout': {
+                'title': 'costheta'
+            }
+        }
     )
-)
+])
 
 
 
 
-data = [trace1]
+
+
+
+
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
+
