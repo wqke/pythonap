@@ -60,6 +60,23 @@ pitau3=LorentzVector(df['Tau_Pi3_PX_TRUE'],df['Tau_Pi3_PY_TRUE'],df['Tau_Pi3_PZ_
 
 nutau=LorentzVector(df['Tau_nu_PX_TRUE'],df['Tau_nu_PY_TRUE'],df['Tau_nu_PZ_TRUE'],df['Tau_nu_E_TRUE'])
 
+
+
+
+newB=B.boost(-B.boostp3)
+newDst=Dst.boost(-B.boostp3)
+newtau=tau.boost(-B.boostp3)
+newD0=D0.boost(-B.boostp3)
+newnuB=nuB.boost(-B.boostp3)
+newK=K.boost(-B.boostp3)
+newpiDst=piDst.boost(-B.boostp3)
+newpitau1=pitau1.boost(-B.boostp3)
+newpitau2=pitau2.boost(-B.boostp3)
+newpitau3=pitau3.boost(-B.boostp3)
+newnutau=nutau.boost(-B.boostp3)
+newpiK=piK.boost(-B.boostp3)
+
+
 nouvtau=tau.boost(-(tau+nuB).boostp3)
 nouvnu=nuB.boost(-(tau+nuB).boostp3)
 nouvpi=piDst.boost(-(piDst+D0).boostp3)
@@ -78,20 +95,6 @@ costhetast=unitD0.dot(unitDst)
 costhetal=unitDst.dot(unittau)
 
 chi=np.arccos(coski)
-
-newB=B.boost(-B.boostp3)
-newDst=Dst.boost(-B.boostp3)
-newtau=tau.boost(-B.boostp3)
-newD0=D0.boost(-B.boostp3)
-newnuB=nuB.boost(-B.boostp3)
-newK=K.boost(-B.boostp3)
-newpiDst=piDst.boost(-B.boostp3)
-newpitau1=pitau1.boost(-B.boostp3)
-newpitau2=pitau2.boost(-B.boostp3)
-newpitau3=pitau3.boost(-B.boostp3)
-newnutau=nutau.boost(-B.boostp3)
-newpiK=piK.boost(-B.boostp3)
-
 
 
 histo=go.Histogram(x=costhetast)
