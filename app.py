@@ -150,7 +150,7 @@ layout = go.Layout(
         linecolor='#636363',
         linewidth=4,
         showbackground=True,
-            backgroundcolor='rgb(230, 230, 230)'
+        backgroundcolor='rgb(230, 230, 230)'
         ),
         zaxis=dict(title='$\\chi$'
         ),
