@@ -1,4 +1,10 @@
 
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Feb 20 18:14:41 2019
+
+@author: ke
+"""
 
 import matplotlib
 matplotlib.use('Agg')
@@ -8,7 +14,7 @@ import root_pandas
 import pandas as pd
 import hepvector
 from hepvector.numpyvector import Vector3D,LorentzVector
-dft=root_pandas.read_root('~/home/ke/model_tree.root',key='DecayTree')
+dft=root_pandas.read_root('model_tree.root',key='DecayTree')
 df=dft.head(10)
 
 import plotly
@@ -32,11 +38,6 @@ plotly.tools.set_credentials_file(username='wke', api_key='gUC6DxjFj6NsTBewEDb5'
 
 plotly.tools.set_config_file(world_readable=True,
                              sharing='public')
-
-
-
-
-
 
 
 df=root_pandas.read_root('model_tree.root',key='DecayTree')
@@ -104,13 +105,70 @@ thetal=np.arccos(costhetal)
 
 x, y, z = thetast,thetal,chi
 
-trace1 = go.Scatter3d(x=x,y=y,z=z,mode='markers',marker=dict(size=5,color=z,colorscale='Viridis',opacity=0.8))
+trace1 = go.Scatter3d(
+    x=x,
+    y=y,
+    z=z,
+    mode='markers',
+    marker=dict(
+        size=5,
+        color=z,                
+        colorscale='Viridis',  
+        opacity=0.8
+    )
+)
+
+
+
+
 data = [trace1]
 
-layout = go.Layout(showlegend=False,width=800,height=900,autosize=False,margin=dict(t=0, b=0, l=0, r=0),scene=dict(xaxis=dict(title='$\\theta *$'),gridcolor='#bdbdbd',gridwidth=2,zerolinecolor='#969696',zerolinewidth=4,linecolor='#636363',linewidth=4,showbackground=True,backgroundcolor='rgb(230, 230,230)'),yaxis=dict(title='$\\theta_l$'),gridcolor='#bdbdbd',gridwidth=2,zerolinecolor='#969696',zerolinewidth=4,linecolor='#636363',linewidth=4,showbackground=True,backgroundcolor='rgb(230, 230, 230)'),zaxis=dict(title='$\\chi$' ),        gridcolor='#bdbdbd',        gridwidth=2,        zerolinecolor='#969696',        zerolinewidth=4,        linecolor='#636363',        linewidth=4,            showbackground=True,            backgroundcolor='rgb(230, 230,230)'        ),        aspectratio = dict(x=1, y=1, z=0.7),aspectmode = 'manual'))
+layout = go.Layout(
+    showlegend=False,
+    width=800,
+    height=900,
+    autosize=False,
+    margin=dict(t=0, b=0, l=0, r=0),
+    scene=dict(
+        xaxis=dict(title='$\\theta *$'
+        ),
+        gridcolor='#bdbdbd',
+        gridwidth=2,
+        zerolinecolor='#969696',
+        zerolinewidth=4,
+        linecolor='#636363',
+        linewidth=4,
+        showbackground=True,
+        backgroundcolor='rgb(230, 230,230)'
+        ),
+        yaxis=dict(title='$\\theta_l$'
+        ),  
+        gridcolor='#bdbdbd',
+        gridwidth=2,
+        zerolinecolor='#969696',
+        zerolinewidth=4,
+        linecolor='#636363',
+        linewidth=4,
+        showbackground=True,
+            backgroundcolor='rgb(230, 230, 230)'
+        ),
+        zaxis=dict(title='$\\chi$'
+        ),
+        gridcolor='#bdbdbd',
+        gridwidth=2,
+        zerolinecolor='#969696',
+        zerolinewidth=4,
+        linecolor='#636363',
+        linewidth=4,
+        showbackground=True,
+        backgroundcolor='rgb(230, 230,230)'
+        ),
+        aspectratio = dict(x=1, y=1, z=0.7),
+        aspectmode = 'manual'
+    )
+)
 
     
 fig = go.Figure(data=data, layout=layout)
 py.plot(fig, filename='3d-scatter-colorscale')
-
 
