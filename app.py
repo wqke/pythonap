@@ -8,7 +8,7 @@ import root_pandas
 import pandas as pd
 import hepvector
 from hepvector.numpyvector import Vector3D,LorentzVector
-dft=root_pandas.read_root('model_tree.root',key='DecayTree')
+dft=root_pandas.read_root('~/home/ke/model_tree.root',key='DecayTree')
 df=dft.head(10)
 
 import plotly
