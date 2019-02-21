@@ -30,5 +30,4 @@ app.layout = html.Div(children=[
 
 
 if __name__ == '__main__':
-    app.run(
-        port=1556)
+    app.run_server(port=1556)
