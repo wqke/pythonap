@@ -15,12 +15,11 @@ import plotly
 import plotly.graph_objs as go
 
 
-app = dash.Dash('visual-decay')                                                 #The name of the app
-server = app.server
-
 df=root_pandas.read_root('model_tree.root',key='DecayTree')         #Read the data ->download root in git or copy root in putty
 
 
+
+########
 
 B=LorentzVector(df['B_PX_TRUE'],df['B_PY_TRUE'],df['B_PZ_TRUE'],df['B_E_TRUE'])
 
@@ -80,8 +79,12 @@ costhetal=unitDst.dot(unittau)
 chi=np.arccos(coski)
 thetast=np.arccos(costhetast)
 thetal=np.arccos(costhetal)
+
+######
+
 x, y, z = thetast,thetal,chi
 
+#The Phase Space scatter plot
 trace1 = go.Scatter3d(
     x=x,
     y=y,
@@ -89,19 +92,25 @@ trace1 = go.Scatter3d(
     mode='markers',
     marker=dict(
         size=5,
-        color=z,                
+        color=z,    # modify              
         colorscale='Viridis',  
         opacity=0.8
     )
 )
 
 
+#######
 
+
+#app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+app = dash.Dash('visual-decay')                                                 #The name of the app
+server = app.server
+
+
 
 app.layout = html.Div(children=[
     html.H1(children='Hello Dash'),
-
     html.Div(children='''
         Dash: A web application framework for Python.
     '''),
@@ -121,6 +130,17 @@ app.layout = html.Div(children=[
 
 
 
+@app.callback(
+    Output(component_id='my-div', component_property='children'),
+    [Input(component_id='my-id', component_property='value')]
+)
+def update_output_div(input_value):                                     #Basically, def(input) and return output, of the callback
+    return 'You\'ve entered "{}"'.format(input_value)
+
+
+#if __name__ == '__main__':
+#app.run_server()
 
 if __name__ == '__main__':
-app.run_server()
+    app.run_server(debug=True)
+
