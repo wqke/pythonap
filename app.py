@@ -110,14 +110,15 @@ server = app.server
 
 
 
-app.layout = html.Div(children=[
+app.layout = html.Div([
+html.Div(children=[
     html.H1(children='Hello Dash'),
     html.Div(children='''
         Dash: A web application framework for Python.
     '''),
 
     dcc.Graph(
-        id='example-graph',
+        id='PhaseSpace',
         figure={
             'data': [
                 trace1
@@ -129,7 +130,12 @@ app.layout = html.Div(children=[
     )
 ])
 
-
+    """
+html.Div([
+    dcc.Input(id='my-id', value='initial value', type='text'),
+    html.Div(id='my-div')
+])
+    
 
 @app.callback(
     Output(component_id='my-div', component_property='children'),
@@ -137,7 +143,7 @@ app.layout = html.Div(children=[
 )
 def update_output_div(input_value):                                     #Basically, def(input) and return output, of the callback
     return 'You\'ve entered "{}"'.format(input_value)
-
+"""
 
 #if __name__ == '__main__':
 #app.run_server()
