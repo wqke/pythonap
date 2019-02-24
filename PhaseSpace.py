@@ -72,11 +72,12 @@ nouvtau=tau.boost(-(tau+nuB).boostp3)
 nouvnu=nuB.boost(-(tau+nuB).boostp3)
 nouvpi=piDst.boost(-(piDst+D0).boostp3)
 nouvD0=D0.boost(-(piDst+D0).boostp3)
+nouvDst=D0.boost(-B.boostp3)
 
 
 unittau=(nouvtau.p3).unit
 unitnu=(nouvnu.p3).unit
-unitDst=(newDst.p3).unit
+unitDst=(nouvDst.p3).unit
 unitD0=(nouvD0.p3).unit
 
 normal1=unittau.cross(unitDst)
@@ -89,13 +90,12 @@ chi=np.arccos(coski)
 thetast=np.arccos(costhetast)
 thetal=np.arccos(costhetal)
 
+############################################################################
 
-x, y, z = thetast,thetal,chi
-
-trace1 = go.Scatter3d(
-    x=x,
-    y=y,
-    z=z,
+trace_phase=go.Scatter3d(
+    x=thetast,
+    y=thetal,
+    z=chi,
     mode='markers',
     marker=dict(
         size=5,
@@ -104,39 +104,180 @@ trace1 = go.Scatter3d(
         opacity=0.8
     )
 )
+    
 
-
-
-
-data = [trace1]
-
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-app = dash.Dash('visual-decay')                                                 #The name of the app
-server = app.server
-
-
-
-app.layout = html.Div([
-html.Div(children=[
-    html.H1(children='Hello Dash'),
-    html.Div(children='''
-        Dash: A web application framework for Python.
-    '''),
-
-    dcc.Graph(
-        id='PhaseSpace',
-        figure={
-            'data': [
-                trace1
-            ],
-            'layout': {
-                'title': 'Phase Space'
-            }
-        }
+layout_phase=go.Layout(
+    showlegend=False,
+    width=800,
+    height=900,
+    autosize=False,
+    margin=dict(t=0, b=0, l=0, r=0),
+    scene=dict(
+        xaxis=dict(
+            title='$\\theta *$',
+            gridcolor='#bdbdbd',
+            gridwidth=2,
+            zerolinecolor='#969696',
+            zerolinewidth=4,
+            linecolor='#636363',
+            linewidth=4,
+            showbackground=True,
+            backgroundcolor='rgb(230, 230,230)'
+        ),
+        yaxis=dict(
+            title='$\\theta_l$',
+            gridcolor='#bdbdbd',
+            gridwidth=2,
+            zerolinecolor='#969696',
+            zerolinewidth=4,
+            linecolor='#636363',
+            linewidth=4,
+            showbackground=True,
+            backgroundcolor='rgb(230, 230, 230)'
+        ),
+        zaxis=dict(
+            title='$\\chi$',
+            gridcolor='#bdbdbd',
+            gridwidth=2,
+            zerolinecolor='#969696',
+            zerolinewidth=4,
+            linecolor='#636363',
+            linewidth=4,
+            showbackground=True,
+            backgroundcolor='rgb(230, 230,230)'
+        ),
+        aspectratio = dict(x=1, y=1, z=0.7),
+        aspectmode = 'manual'
     )
+)
+        
+trace_hist=go.Histogram(x=costhetast)
+layout_hist = go.Layout(title='costheta* distribution')
+
+
+
+app.layout = html.Div(children=[
+
+	html.Div([
+		html.Div([
+			html.Div([
+				html.H2('B decay visualisation',
+                style={
+                    'position': 'relative',
+                    'top': '0px',
+                    'left': '10px',
+                    'font-family': 'Dosis',
+                    'display': 'inline',
+                    'font-size': '6.0rem',
+                    'color': '#4D637F'
+                }),
+				html.P('Choose ranges :'),
+                ]),
+			html.Br(),
+            
+            """RangeSlider for choosing thetast"""            
+            html.P('theta_st :',
+				style={
+					'display':'inline-block',
+					'verticalAlign': 'top',
+					'marginRight': '10px'
+				}
+            ),
+            html.Div([
+				dcc.RangeSlider(
+					id='choose-thetast',
+					min=0, max=np.pi, value=DEFAULT_OPACITY, step=0.1,
+				),
+                html.Div(id='output-range-thetast'
+            ], style={'width':300, 'display':'inline-block', 'marginBottom':10}),
+            
+                
+            """RangeSlider for choosing thetal"""
+            html.Br(),
+            html.P('theta_l :',
+				style={
+					'display':'inline-block',
+					'verticalAlign': 'top',
+					'marginRight': '10px'
+				}
+            ),
+            html.Div([
+				dcc.RangeSlider(
+					id='choose-thetal',
+					min=0, max=np.pi, value=DEFAULT_OPACITY, step=0.1,
+				),
+                html.Div(id='output-range-thetal'
+            ], style={'width':300, 'display':'inline-block', 'marginBottom':10}),
+
+            """RangeSlider for choosing chi"""
+            html.Br(),
+            html.P('chi :',
+				style={
+					'display':'inline-block',
+					'verticalAlign': 'top',
+					'marginRight': '10px'
+				}
+            ),
+            html.Div([
+				dcc.RangeSlider(
+					id='choose-chi',
+					min=0, max=np.pi, value=DEFAULT_OPACITY, step=0.1,
+				),
+                html.Div(id='output-range-chi'
+            ], style={'width':300, 'display':'inline-block', 'marginBottom':10}),
+                
+        ], style={'margin':20} ),
+        
+        html.P('Phase space of selected ranges',
+			style = {'fontWeight':600}
+        ),
+        
+        dcc.Graph(
+			    id = 'phase-space',
+                figure = dict(
+                        data=[trace_phase],
+                        layout = layout_phase
+                        )
+        ),
+                
+        html.Div([
+			html.P('Maybe I should put some text here ?'
+			)
+        ], style={'margin':20})     #maybe I should change the style
+    ], className='six columns', style={'margin':0}),
+                
+
+                
 ])
-  
-  
+                
+#--------------------------------
+#                                |
+#Callback for the range sliders  |
+#                                |
+#--------------------------------
+                
+@app.callback(
+    dash.dependencies.Output('output-range-thetast', 'children'),
+    [dash.dependencies.Input('choose-thetast', 'value')])
+def update_output(value):
+    return 'You have selected "{}"'.format(value)
+                
+@app.callback(
+    dash.dependencies.Output('output-range-thetal', 'children'),
+    [dash.dependencies.Input('choose-thetal', 'value')])
+def update_output(value):
+    return 'You have selected "{}"'.format(value)
+
+            
+@app.callback(
+    dash.dependencies.Output('output-range-chi', 'children'),
+    [dash.dependencies.Input('choose-chi', 'value')])
+def update_output(value):
+    return 'You have selected "{}"'.format(value)
+                
+                
+                
+
   
 if __name__ == '__main__':
     app.run_server(debug=True)
