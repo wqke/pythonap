@@ -177,78 +177,109 @@ app.layout = html.Div(children=[
 			html.Br(),
             
             """RangeSlider for choosing thetast"""            
-            html.P('theta_st :',
-				style={
-					'display':'inline-block',
-					'verticalAlign': 'top',
-					'marginRight': '10px'
-				}
-            ),
-            html.Div([
-				dcc.RangeSlider(
-					id='choose-thetast',
-					min=0, max=np.pi, value=[0,np.pi], step=0.1,
-				),
-                html.Div(id='output-range-thetast')
-            ], style={'width':300, 'display':'inline-block', 'marginBottom':10}),
-            
-                
-            """RangeSlider for choosing thetal"""
-            html.Br(),
-            html.P('theta_l :',
-				style={
-					'display':'inline-block',
-					'verticalAlign': 'top',
-					'marginRight': '10px'
-				}
-            ),
-            html.Div([
-				dcc.RangeSlider(
-					id='choose-thetal',
-					min=0, max=np.pi, value=[0,np.pi], step=0.1,
-				),
-                html.Div(id='output-range-thetal')
-            ], style={'width':300, 'display':'inline-block', 'marginBottom':10}),
+		    html.P('theta_st :',
+					style={
+						'display':'inline-block',
+						'verticalAlign': 'top',
+						'marginRight': '10px'
+					}
+		    ),
+		    html.Div([
+					dcc.RangeSlider(
+						id='choose-thetast',
+						min=0, max=np.pi, value=[0,np.pi], step=0.1,
+					),
+			html.Div(id='output-range-thetast')
+		    ], style={'width':300, 'display':'inline-block', 'marginBottom':10}),
 
-            """RangeSlider for choosing chi"""
-            html.Br(),
-            html.P('chi :',
-				style={
-					'display':'inline-block',
-					'verticalAlign': 'top',
-					'marginRight': '10px'
-				}
-            ),
-            html.Div([
-				dcc.RangeSlider(
-					id='choose-chi',
-					min=0, max=np.pi,value=[0,np.pi], step=0.1,
-				),
-                html.Div(id='output-range-chi')
-            ], style={'width':300, 'display':'inline-block', 'marginBottom':10}),
-                
-        ], style={'margin':20} ),
-        
-        html.P('Phase space of selected ranges',
-			style = {'fontWeight':600}
-        ),
-        
-        dcc.Graph(
-			    id = 'phase-space',
-                figure = dict(
-                        data=[trace_phase],
-                        layout = layout_phase
-                        )
-        ),
-                
-        html.Div([
-			html.P('Maybe I should put some text here ?'
-			)
-        ], style={'margin':20})     #maybe I should change the style
-    ], className='six columns', style={'margin':0}),
-                
 
-                
+		    """RangeSlider for choosing thetal"""
+		    html.Br(),
+		    html.P('theta_l :',
+					style={
+						'display':'inline-block',
+						'verticalAlign': 'top',
+						'marginRight': '10px'
+					}
+		    ),
+		    html.Div([
+					dcc.RangeSlider(
+						id='choose-thetal',
+						min=0, max=np.pi, value=[0,np.pi], step=0.1,
+					),
+			html.Div(id='output-range-thetal')
+		    ], style={'width':300, 'display':'inline-block', 'marginBottom':10}),
+
+		    """RangeSlider for choosing chi"""
+		    html.Br(),
+		    html.P('chi :',
+					style={
+						'display':'inline-block',
+						'verticalAlign': 'top',
+						'marginRight': '10px'
+					}
+		    ),
+		    html.Div([
+					dcc.RangeSlider(
+						id='choose-chi',
+						min=0, max=np.pi,value=[0,np.pi], step=0.1,
+					),
+			html.Div(id='output-range-chi')
+		    ], style={'width':300, 'display':'inline-block', 'marginBottom':10}),
+
+		], style={'margin':20} ),
+
+		html.P('Phase space of selected ranges',
+				style = {'fontWeight':600}
+		),
+
+		dcc.Graph(
+				    id = 'phase-space',
+			figure = dict(
+				data=[trace_phase],
+				layout = layout_phase
+				)
+		),
+
+		html.Div([
+				html.P('Maybe I should put some text here ?'
+				)
+		], style={'margin':20})     #maybe I should change the style
+	    ], className='six columns', style={'margin':0}),
+
+	html.Div([
+                dcc.RadioItems(
+                    options=[
+                        {'label':'3D one event','value':'3D'},
+                        {'label':'XY projection','value':'XY'},
+                        {'label':'YZ projection','value':'YZ'},
+                        {'label':'ZX projection','value':'ZX'}
+                    ],
+                    value='3D',
+                    id='which-D'
+                )
+		html.Br(),
+		html.P('Select frame:', style={'display': 'inline-block'}),
+		
+		dcc.Dropdown(
+		    options=[{'label': 'Lab', 'value': 'lab'},
+					{'label': 'COM of B', 'value': 'B'},
+					{'label': 'COM of D*', 'value': 'D'},
+			     		{'label': 'COM of tau', 'value': 'tau'},
+					{'label': 'COM of (B-D*)', 'value': 'B-D'}],
+			value='lab',
+			id='dropdown-frame'
+		),
+		dcc.Graph(
+			id = 'selected-frame',
+			figure = dict(
+				data = [trace],
+				layout = layout    #?? How to change layout for different graphs
+				
+			),
+		)
+	], className='six columns', style={'margin':0}),
+
 ])
                 
 #--------------------------------
@@ -256,7 +287,8 @@ app.layout = html.Div(children=[
 #Callback for the range sliders  |
 #                                |
 #--------------------------------
-                
+ 
+#Show the chosen ranges
 @app.callback(
     dash.dependencies.Output('output-range-thetast', 'children'),
     [dash.dependencies.Input('choose-thetast', 'value')])
@@ -276,8 +308,34 @@ def update_output(value):
 def update_output(value):
     return 'You have selected "{}"'.format(value)
                 
+#Show the corresponding graph
+@app.callback(
+	dash.dependencies.Output('phase-space', 'figure'),
+	[Input('years-slider', 'value'),
+		Input('opacity-slider', 'value'),
+		Input('colorscale-picker', 'colorscale'),
+		Input('hide-map-legend', 'values')],
+
+	
+	
+
                 
-                
+#--------------------------------
+#Callback for the RadioItems     |
+#    and the DropdownMenu        |
+#--------------------------------
+ 
+
+
+#--------------------------------
+#Callback for the RadioItems     |
+#    and the DropdownMenu        |
+#--------------------------------
+ 
+	
+	
+	
+	
 
   
 if __name__ == '__main__':
