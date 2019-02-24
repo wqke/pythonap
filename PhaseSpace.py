@@ -12,8 +12,6 @@ from dash.dependencies import Input, Output
 import dash_html_components as html
 import dash_core_components as dcc
 import pandas as pd
-import flask
-from flask_cors import CORS
 import os
 import root_pandas
 import pandas as pd
@@ -34,6 +32,9 @@ import plotly.tools as tls
 from plotly.graph_objs import Data, Layout, Figure
 from plotly.graph_objs import Scatter
 
+
+app = dash.Dash(__name__)
+server = app.server
 
 
 df=root_pandas.read_root('model_tree.root',key='DecayTree')
@@ -99,7 +100,7 @@ trace_phase=go.Scatter3d(
     mode='markers',
     marker=dict(
         size=5,
-        color=z,                
+        color=chi,                
         colorscale='Viridis',  
         opacity=0.8
     )
@@ -186,9 +187,9 @@ app.layout = html.Div(children=[
             html.Div([
 				dcc.RangeSlider(
 					id='choose-thetast',
-					min=0, max=np.pi, value=DEFAULT_OPACITY, step=0.1,
+					min=0, max=np.pi, value=[0,np.pi], step=0.1,
 				),
-                html.Div(id='output-range-thetast'
+                html.Div(id='output-range-thetast')
             ], style={'width':300, 'display':'inline-block', 'marginBottom':10}),
             
                 
@@ -204,9 +205,9 @@ app.layout = html.Div(children=[
             html.Div([
 				dcc.RangeSlider(
 					id='choose-thetal',
-					min=0, max=np.pi, value=DEFAULT_OPACITY, step=0.1,
+					min=0, max=np.pi, value=[0,np.pi], step=0.1,
 				),
-                html.Div(id='output-range-thetal'
+                html.Div(id='output-range-thetal')
             ], style={'width':300, 'display':'inline-block', 'marginBottom':10}),
 
             """RangeSlider for choosing chi"""
@@ -221,9 +222,9 @@ app.layout = html.Div(children=[
             html.Div([
 				dcc.RangeSlider(
 					id='choose-chi',
-					min=0, max=np.pi, value=DEFAULT_OPACITY, step=0.1,
+					min=0, max=np.pi,value=[0,np.pi], step=0.1,
 				),
-                html.Div(id='output-range-chi'
+                html.Div(id='output-range-chi')
             ], style={'width':300, 'display':'inline-block', 'marginBottom':10}),
                 
         ], style={'margin':20} ),
