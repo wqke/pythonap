@@ -245,7 +245,7 @@ def update_output3(value):
 	dash.dependencies.Output('phase-space', 'figure'),
 	[Input('choose-thetast', 'value'),
 		Input('choose-thetal', 'value'),
-		Input('choose-chi', 'values')],
+		Input('choose-chi', 'value')])
 def plot_phase_space(rangest,rangel,rangechi):
 	trace_phase=go.Scatter3d(
 	    x=thetast,
