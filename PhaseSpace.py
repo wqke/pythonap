@@ -321,6 +321,14 @@ def plot_phase_space(rangest,rangel,rangechi):
 #    and the DropdownMenu        |
 #--------------------------------
  
+@app.callback(
+    Output('selected-frame', 'figure'),
+    [Input('county-choropleth', 'selectedData'),    #click event
+     Input('dropdown-frame', 'value'),
+    Input('which-D', 'value')])
+def draw_frame(dropvalue,dimvalue):
+	
+	
 
 
 #--------------------------------
