@@ -93,65 +93,6 @@ thetal=np.arccos(costhetal)
 
 ############################################################################
 
-trace_phase=go.Scatter3d(
-    x=thetast,
-    y=thetal,
-    z=chi,
-    mode='markers',
-    marker=dict(
-        size=5,
-        color=chi,                
-        colorscale='Viridis',  
-        opacity=0.8
-    )
-)
-    
-
-layout_phase=go.Layout(
-    showlegend=False,
-    width=800,
-    height=900,
-    autosize=False,
-    margin=dict(t=0, b=0, l=0, r=0),
-    scene=dict(
-        xaxis=dict(
-            title='$\\theta *$',
-            gridcolor='#bdbdbd',
-            gridwidth=2,
-            zerolinecolor='#969696',
-            zerolinewidth=4,
-            linecolor='#636363',
-            linewidth=4,
-            showbackground=True,
-            backgroundcolor='rgb(230, 230,230)'
-        ),
-        yaxis=dict(
-            title='$\\theta_l$',
-            gridcolor='#bdbdbd',
-            gridwidth=2,
-            zerolinecolor='#969696',
-            zerolinewidth=4,
-            linecolor='#636363',
-            linewidth=4,
-            showbackground=True,
-            backgroundcolor='rgb(230, 230, 230)'
-        ),
-        zaxis=dict(
-            title='$\\chi$',
-            gridcolor='#bdbdbd',
-            gridwidth=2,
-            zerolinecolor='#969696',
-            zerolinewidth=4,
-            linecolor='#636363',
-            linewidth=4,
-            showbackground=True,
-            backgroundcolor='rgb(230, 230,230)'
-        ),
-        aspectratio = dict(x=1, y=1, z=0.7),
-        aspectmode = 'manual'
-    )
-)
-        
 trace_hist=go.Histogram(x=costhetast)
 layout_hist = go.Layout(title='costheta* distribution')
 
@@ -233,13 +174,7 @@ app.layout = html.Div(children=[
 				style = {'fontWeight':600}
 		),
 
-		dcc.Graph(
-				    id = 'phase-space',
-			figure = dict(
-				data=[trace_phase],
-				layout = layout_phase
-				)
-		),
+		dcc.Graph(id = 'phase-space'),
 
 		html.Div([
 				html.P('Maybe I should put some text here ?'
@@ -292,29 +227,90 @@ app.layout = html.Div(children=[
 @app.callback(
     dash.dependencies.Output('output-range-thetast', 'children'),
     [dash.dependencies.Input('choose-thetast', 'value')])
-def update_output(value):
+def update_output1(value):
     return 'You have selected "{}"'.format(value)
                 
 @app.callback(
     dash.dependencies.Output('output-range-thetal', 'children'),
     [dash.dependencies.Input('choose-thetal', 'value')])
-def update_output(value):
+def update_output2(value):
     return 'You have selected "{}"'.format(value)
 
             
 @app.callback(
     dash.dependencies.Output('output-range-chi', 'children'),
     [dash.dependencies.Input('choose-chi', 'value')])
-def update_output(value):
+def update_output3(value):
     return 'You have selected "{}"'.format(value)
                 
+	
 #Show the corresponding graph
 @app.callback(
 	dash.dependencies.Output('phase-space', 'figure'),
-	[Input('years-slider', 'value'),
-		Input('opacity-slider', 'value'),
-		Input('colorscale-picker', 'colorscale'),
-		Input('hide-map-legend', 'values')],
+	[Input('choose-thetast', 'value'),
+		Input('choose-thetal', 'value'),
+		Input('choose-chi', 'values')],
+def plot_phase_space(rangest,rangel,rangechi):
+	trace_phase=go.Scatter3d(
+	    x=thetast,
+	    y=thetal,
+	    z=chi,
+	    mode='markers',
+	    marker=dict(
+		size=5,
+		color=chi,                
+		colorscale='Viridis',  
+		opacity=0.8
+	    )
+	)
+	layout_phase=go.Layout(
+	    showlegend=False,
+	    width=800,
+	    height=900,
+	    autosize=False,
+	    margin=dict(t=0, b=0, l=0, r=0),
+	    scene=dict(
+		xaxis=dict(
+		    range=rangest,
+		    title='$\\theta *$',
+		    gridcolor='#bdbdbd',
+		    gridwidth=2,
+		    zerolinecolor='#969696',
+		    zerolinewidth=4,
+		    linecolor='#636363',
+		    linewidth=4,
+		    showbackground=True,
+		    backgroundcolor='rgb(230, 230,230)'
+		),
+		yaxis=dict(
+		    range=ranglel,
+		    title='$\\theta_l$',
+		    gridcolor='#bdbdbd',
+		    gridwidth=2,
+		    zerolinecolor='#969696',
+		    zerolinewidth=4,
+		    linecolor='#636363',
+		    linewidth=4,
+		    showbackground=True,
+		    backgroundcolor='rgb(230, 230, 230)'
+		),
+		zaxis=dict(
+	            range=rangechi,
+		    title='$\\chi$',
+		    gridcolor='#bdbdbd',
+		    gridwidth=2,
+		    zerolinecolor='#969696',
+		    zerolinewidth=4,
+		    linecolor='#636363',
+		    linewidth=4,
+		    showbackground=True,
+		    backgroundcolor='rgb(230, 230,230)'
+		),
+		aspectratio = dict(x=1, y=1, z=0.7),
+		aspectmode = 'manual'
+	    )
+	)
+	return {'data': [trace_phase], 'layout': layout_phase}
 
 	
 	
