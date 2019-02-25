@@ -6,9 +6,10 @@ Created on Wed Feb 20 18:14:41 2019
 """
 
 
-
+import json
+from textwrap import dedent as d
 import dash
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output,State
 import dash_html_components as html
 import dash_core_components as dcc
 import pandas as pd
@@ -32,8 +33,8 @@ import plotly.tools as tls
 from plotly.graph_objs import Data, Layout, Figure
 from plotly.graph_objs import Scatter
 
-
-app = dash.Dash(__name__)
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
 
@@ -100,6 +101,25 @@ layout_hist = go.Layout(title='costheta* distribution')
 
 
 ############################################################################
+
+trace_phase=go.Scatter3d(
+	    x=thetast,
+	    y=thetal,
+	    z=chi,
+	    mode='markers',
+	    marker=dict(
+		size=5,
+		color=chi,                
+		colorscale='Viridis',  
+		opacity=0.8
+	    )
+	)
+	
+
+
+
+
+###################
 app.layout = html.Div(children=[
 
 	html.Div([
@@ -176,7 +196,7 @@ app.layout = html.Div(children=[
 				style = {'fontWeight':600}
 		),
 
-		dcc.Graph(id = 'phase-space'),
+		dcc.Graph(id = 'phase-space',animate=True),
 
 		html.Div([
 				html.P('Maybe I should put some text here ?'
@@ -247,18 +267,6 @@ def update_output3(value):
 		Input('choose-thetal', 'value'),
 		Input('choose-chi', 'value')])
 def plot_phase_space(rangest,rangel,rangechi):
-	trace_phase=go.Scatter3d(
-	    x=thetast,
-	    y=thetal,
-	    z=chi,
-	    mode='markers',
-	    marker=dict(
-		size=5,
-		color=chi,                
-		colorscale='Viridis',  
-		opacity=0.8
-	    )
-	)
 	layout_phase=go.Layout(
 	    showlegend=False,
 	    width=800,
@@ -308,9 +316,22 @@ def plot_phase_space(rangest,rangel,rangechi):
 	)
 	return {'data': [trace_phase], 'layout': layout_phase}
 
-	
-	
 
+
+
+#---------------------------
+#                           |
+#Callback for clickData     |
+#                           |
+#---------------------------
+	
+@app.callback(
+        Output('basic_graph', 'figure'),
+        [Input('phase-space', 'clickData')])
+def plot_basin(selection):
+    if selection is None:
+        return {}
+    else:
                 
 #--------------------------------
 #Callback for the RadioItems     |
@@ -544,7 +565,6 @@ def draw_frame(selection):#,dropvalue,dimvalue):
   
 if __name__ == '__main__':
     app.run_server(debug=True)
-
 
 
 
