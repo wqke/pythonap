@@ -621,6 +621,18 @@ def drawevent(selection,radio,frame):
 
 
 
+        
+        
+        surface1 = go.Mesh3d(x=x,y=y,z=z,
+                   alphahull=5,
+                   opacity=0.4,
+                   color='#00FFFF')
+        
+        
+        
+        
+        
+        
 
 
 if __name__ == '__main__':
