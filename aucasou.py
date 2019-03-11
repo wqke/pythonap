@@ -23,8 +23,15 @@ import plotly.tools as tls
 from plotly.graph_objs import Data, Layout, Figure
 from plotly.graph_objs import Scatter
 
+###
+from scipy.optimize import curve_fit
+bin_heights, bin_borders, _=plt.hist(x,density=True,bins=bins)
+bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
+#def func1 ...
+popt, _ = curve_fit(func1, bin_centers, bin_heights)
 
 
+###
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
