@@ -11,7 +11,7 @@ import numpy as np
 from numpy import cos,sin,tan,sqrt,absolute,real,conjugate,imag,abs,max,min
 from scipy.optimize import curve_fit
 from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
+from matplotlib import cm,rc
 
 
 dft=root_pandas.read_root('model_tree.root',key='DecayTree')
@@ -71,18 +71,76 @@ bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
 popt, _ = curve_fit(func1, bin_centers, bin_heights)
 ###
 
-chi= chi[~np.isnan(chi)]
-q2=q2[:len(chi)]
 
-#3D histogram
-q2_heights, q2_borders, _=plt.hist(q2,density=True,bins=np.linspace(min(q2),max(q2),100))
+###Calculate polarisation : costhetast
+
+def fitFD(x,FD):
+        res=(2*FD*x**2+(1-FD)*(1-x**2))/4.
+        return res
+
+q2_heights, q2_borders, _=plt.hist(q2,bins=np.linspace(min(q2),max(q2),21)) #density=True,
+q2_centers = q2_borders[:-1] + np.diff(q2_borders) / 2
+plt.close()
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+x, y = costhetast,q2
+hist, xedges, yedges = np.histogram2d(x, y, bins=20, range=[[-1, 1], [min(q2), max(q2)]])
+plt.close()
+x_centers = xedges[:-1] + np.diff(xedges)/2
+y_centers = yedges[:-1] + np.diff(yedges)/2
+
+xv,yv=np.meshgrid(x_centers, y_centers)
+
+fig = plt.figure(figsize=plt.figaspect(0.35))
+ax = plt.axes(projection='3d')
+surf = ax.plot_surface(xv, yv, np.transpose(hist), cmap=cm.coolwarm)
+ax.set_xlabel ('costheta*')
+ax.set_ylabel ('q2')
+plt.close()
+
+
+FDlist=[]
+FDerr=[]
+q2err=[]
+q2list=y_centers
+    
+for i in range(len(q2list)):
+        coord=hist[...,i]/q2_heights[i]
+        popt, pcov= curve_fit(fitFD, x_centers,coord)
+        FDlist.append(popt[0])
+        FDerr.append(np.sqrt(np.diag(pcov)))
+        q2err.append((max(q2)-min(q2))/20.)
+        
+plt.errorbar(q2list,FDlist, xerr=q2err,yerr=FDerr, fmt='o', color='black',
+             ecolor='lightgray', elinewidth=3, capsize=0)
+
+def power(x,c,d,e):
+        res=c*x**2+d*x+e
+        return res
+sol,_=curve_fit(power, q2list, FDlist, maxfev=2000)
+plt.plot(np.linspace(3,12,50),power(np.linspace(3,12,50),sol[0],sol[1],sol[2]),color='r',label='parabolic fit')
+plt.xlabel(r'$q^2$ [GeV$^2$]')
+plt.ylabel(r'$F_L^{D^*}$ ($q^2$)')
+plt.title(r'$F_L^{D^*}$ curve fit',fontsize=14, color='black')
+plt.legend()
+
+
+
+#3D histogram, fit A
+
+##No nan requirement
+q2=q2[~np.isnan(chi)]
+chi= chi[~np.isnan(chi)]
+
+q2_heights, q2_borders, _=plt.hist(q2,bins=np.linspace(min(q2),max(q2),21))
 q2_centers = q2_borders[:-1] + np.diff(q2_borders) / 2
 plt.close()
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 x, y = chi,q2
-hist, xedges, yedges = np.histogram2d(x, y, bins=100, range=[[-np.pi, np.pi], [min(q2), max(q2)]],normed=True)
+hist, xedges, yedges = np.histogram2d(x, y, bins=20)#, range=[[-np.pi, np.pi], [min(q2), max(q2)]])
 plt.close()
 x_centers = xedges[:-1] + np.diff(xedges) / 2
 y_centers = yedges[:-1] + np.diff(yedges) / 2
@@ -101,57 +159,35 @@ def func1(x,A):
         return res
     
 Alist=[]
-    
+Aerr=[]    
+q2err=[]
 q2list=y_centers
     
 for i in range(len(q2list)):
-        coord=2*np.pi*hist[:-1,i]/q2_heights[i]
-        popt, _ = curve_fit(func1, x_centers[:-1],coord)
+        coord=2*hist[:,i]/q2_heights[i]
+        popt, pcov = curve_fit(func1, x_centers,coord)
         Alist.append(popt[0])
+        Aerr.append(np.sqrt(np.diag(pcov)))
+        q2err.append((max(q2)-min(q2))/20.)
         
-plt.plot(q2list,Alist)
 
+plt.errorbar(q2list,Alist, xerr=q2err,yerr=Aerr, fmt='o', color='black',
+             ecolor='lightgray', elinewidth=3, capsize=0)
+
+def power(x,c,d,e):
+        res=c*x**2+d*x+e
+        return res
+sol,_=curve_fit(power, q2list, Alist, maxfev=2000)
+plt.plot(np.linspace(3,12,50),power(np.linspace(3,12,50),sol[0],sol[1],sol[2]),color='r',label='parabolic fit')
+plt.xlabel(r'$q^2$ [GeV$^2$]')
+plt.ylabel(r'$A_C^{(1)}({q^2})$')
+plt.title(r'$A_C^{(1)}({q^2})$ curve fit',fontsize=14, color='black')
+plt.legend()
 
 
 """"""
 
 
-chi= chi[~np.isnan(chi)]
-q2=q2[:len(chi)]
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-x, y = chi,q2
-hist, xedges, yedges = np.histogram2d(x, y, bins=50, range=[[-np.pi, np.pi], [min(q2), max(q2)]],normed=True)
-
-x_centers = xedges[:-1] + np.diff(xedges) / 2
-y_centers = yedges[:-1] + np.diff(yedges) / 2
-
-xv,yv=np.meshgrid(x_centers, y_centers)
-
-fig = plt.figure(figsize=plt.figaspect(0.35))
-ax = plt.axes(projection='3d')
-surf = ax.plot_surface(xv, yv, np.transpose(hist), cmap=cm.coolwarm)
-ax.set_xlabel ('chi')
-ax.set_ylabel ('q2')
-
-q2_heights, q2_borders, _=plt.hist(q2,density=True,bins=50)#bins=np.linspace(min(q2),max(q2),50))
-q2_centers = q2_borders[:-1] + np.diff(q2_borders) / 2
-
-
-
-def func1(x,A):
-        res=1+A*cos(2*x)
-        return res
-Alist=[]
-q2list=q2_centers
-for i in range(len(q2list)):
-        coord=2*np.pi*hist[:,i]/q2_heights[i]
-        popt, _ = curve_fit(func1, x_centers[:],coord)
-        Alist.append(popt[0])
-        
-        
-        
 
 
 
