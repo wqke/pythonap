@@ -13,9 +13,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 from numpy import cos,sin,tan,sqrt,absolute,real,conjugate,imag,abs,max,min
 
-import hepvector
-from hepvector.numpyvector import Vector3D,LorentzVector
-
 import plotly
 import plotly.graph_objs as go
 import plotly.plotly as py
@@ -24,6 +21,7 @@ from plotly.graph_objs import Data, Layout, Figure
 from plotly.graph_objs import Scatter
 
 ###
+#1D fit
 from scipy.optimize import curve_fit
 bin_heights, bin_borders, _=plt.hist(x,density=True,bins=bins)
 bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
@@ -32,6 +30,63 @@ popt, _ = curve_fit(func1, bin_centers, bin_heights)
 
 
 ###
+#3D histogram
+
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import cm
+chi= chi[~np.isnan(chi)]
+q2=q2[:len(chi)]
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+x, y = chi,q2
+hist, xedges, yedges = np.histogram2d(x, y, bins=20, range=[[-np.pi, np.pi], [min(q2), max(q2)]],normed=True)
+
+x_centers = xedges[:-1] + np.diff(xedges) / 2
+y_centers = yedges[:-1] + np.diff(yedges) / 2
+
+xv,yv=np.meshgrid(x_centers, y_centers)
+
+fig = plt.figure(figsize=plt.figaspect(0.35))
+ax = plt.axes(projection='3d')
+surf = ax.plot_surface(xv, yv, np.transpose(hist), cmap=cm.coolwarm)
+ax.set_xlabel ('chi')
+ax.set_ylabel ('q2')
+
+q2_heights, q2_borders, _=plt.hist(q2,density=True,bins=np.linspace(min(q2),max(q2),20))
+q2_centers = q2_borders[:-1] + np.diff(q2_borders) / 2
+
+
+
+def func1(x,A):
+        res=1+A*cos(2*x)
+        return res
+Alist=[]
+for i in range(len(q2list)):
+        coord=2*np.pi*hist[:-1,i]/q2_heights[i]
+        popt, _ = curve_fit(func1, x_centers[:-1],coord)
+        Alist.append(popt[0])
+        
+        
+        
+
+
+plt.plot(q2list,Alist)
+
+##
+xpos, ypos = np.meshgrid(xedges[:-1]+xedges[1:], yedges[:-1]+yedges[1:]) -(xedges[1]-xedges[0])
+xpos = xpos.flatten('F')
+ypos = ypos.flatten('F')
+zpos = np.zeros_like(xpos)
+dx = 0.5 * np.ones_like(zpos)
+dy = dx.copy()
+dz = hist.flatten()
+ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color='b', zsort='average')
+
+
+######
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
