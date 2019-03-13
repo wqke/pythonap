@@ -72,6 +72,77 @@ popt, _ = curve_fit(func1, bin_centers, bin_heights)
 ###
 
 
+###Calculate A_FB
+def fitAFB(x,a,b,c,d):
+        res=a*x+b*x**2/2.+c*x**3/3.+d
+        return res
+
+q2_heights, q2_borders, _=plt.hist(q2,bins=np.linspace(min(q2),max(q2),21))
+q2_centers = q2_borders[:-1] + np.diff(q2_borders) / 2
+plt.close()
+
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+x, y = costhetal,q2
+hist, xedges, yedges = np.histogram2d(x, y, bins=20, range=[[-1, 1], [min(q2), max(q2)]])
+plt.close()
+x_centers = xedges[:-1] + np.diff(xedges)/2
+y_centers = yedges[:-1] + np.diff(yedges)/2
+
+
+xv,yv=np.meshgrid(x_centers, y_centers)
+
+fig = plt.figure(figsize=plt.figaspect(0.35))
+ax = plt.axes(projection='3d')
+surf = ax.plot_surface(xv, yv, np.transpose(hist), cmap=cm.coolwarm)
+ax.set_xlabel ('costheta_l')
+ax.set_ylabel ('q2')
+plt.close()
+
+AFBlist=[]
+AFBerr=[]
+q2err=[]
+q2list=y_centers
+
+
+for i in range(len(q2list)):
+        #coord=hist[...,i]
+        coord=q2_heights
+        popt, pcov= curve_fit(fitAFB, x_centers,coord)
+        a,b,c,d=(popt[0],popt[1],popt[2],popt[3])
+        afb=b/q2_heights[i]
+        AFBlist.append(afb)
+        aerr,berr,cerr,derr=np.sqrt(np.diag(pcov))
+        
+        errz=rab*np.sqrt( 2*aerr**2/(a-c)**2+2*aerr**2/(2*a+2*c)**2)
+        RABerr.append(errz)
+        q2err.append((max(q2)-min(q2))/20.)
+        
+plt.errorbar(q2list,RABlist, xerr=q2err,yerr=RABerr, fmt='o', color='black',
+             ecolor='lightgray', elinewidth=3, capsize=0)
+
+def power(x,c,d,e):
+        res=c*x**2+d*x+e
+        return res
+
+
+
+
+"""
+sol,_=curve_fit(power, q2list, RABlist, maxfev=2000)
+
+plt.plot(np.linspace(3,12,50),power(np.linspace(3,12,50),sol[0],sol[1],sol[2]),color='r',label='parabolic fit')
+plt.xlabel(r'$q^2$ [GeV$^2$]')
+plt.ylabel(r'$R_{A,B}$ ($q^2$)')
+plt.title(r'$R_{A,B}$ curve fit',fontsize=14, color='black')
+plt.legend()
+"""
+
+
+
+
+
 ###Calculate R_LT
 def fitRLT(x,a,c):
         res=a+c*x**2
@@ -197,20 +268,20 @@ plt.legend()
 
 
 
-###Calculate polarisation : costhetast
+###Calculate FD
 
-def fitFD(x,FD):
-        res=(2*FD*x**2+(1-FD)*(1-x**2))/4.
+def fitFD(x,FD,c):
+        res=(2*FD*x**3/3.+(1-FD)*(x-x**3/3.)+c)/4.
         return res
 
-q2_heights, q2_borders, _=plt.hist(q2,bins=np.linspace(min(q2),max(q2),21)) #density=True,
+q2_heights, q2_borders, _=plt.hist(q2,bins=np.linspace(min(q2),max(q2),201)) 
 q2_centers = q2_borders[:-1] + np.diff(q2_borders) / 2
 plt.close()
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 x, y = costhetast,q2
-hist, xedges, yedges = np.histogram2d(x, y, bins=20, range=[[-1, 1], [min(q2), max(q2)]])
+hist, xedges, yedges = np.histogram2d(x, y, bins=200)
 plt.close()
 x_centers = xedges[:-1] + np.diff(xedges)/2
 y_centers = yedges[:-1] + np.diff(yedges)/2
@@ -231,11 +302,11 @@ q2err=[]
 q2list=y_centers
     
 for i in range(len(q2list)):
-        coord=hist[...,i]/q2_heights[i]
+        coord=hist[...,i]
         popt, pcov= curve_fit(fitFD, x_centers,coord)
-        FDlist.append(popt[0])
+        FDlist.append(popt[0]/q2_heights[i])
         FDerr.append(np.sqrt(np.diag(pcov)))
-        q2err.append((max(q2)-min(q2))/20.)
+        q2err.append((max(q2)-min(q2))/200.)
         
 plt.errorbar(q2list,FDlist, xerr=q2err,yerr=FDerr, fmt='o', color='black',
              ecolor='lightgray', elinewidth=3, capsize=0)
@@ -250,6 +321,36 @@ plt.ylabel(r'$F_L^{D^*}$ ($q^2$)')
 plt.title(r'$F_L^{D^*}$ curve fit',fontsize=14, color='black')
 plt.legend()
 
+
+
+#Calculate Ac3
+
+##No nan requirement
+costhetast= costhetast[~np.isnan(chi)]
+costhetal= costhetal[~np.isnan(chi)]
+q2=q2[~np.isnan(chi)]
+chi= chi[~np.isnan(chi)]
+
+q2_heights, q2_borders, _=plt.hist(q2,bins=np.linspace(min(q2),max(q2),21)) 
+q2_centers = q2_borders[:-1] + np.diff(q2_borders) / 2
+plt.close()
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+x, y ,z , w= chi,q2,costhetal,costhetast
+hist,edges= np.histogramdd((x, y,z,w), bins=(20,20,20,20),range=((-np.pi,np.pi),(min(q2),max(q2)),(-1,1),(-1,1)))
+[xedges,yedges,zedges,wedges]=edges
+plt.close()
+
+x_centers = xedges[:-1] + np.diff(xedges)/2
+y_centers = yedges[:-1] + np.diff(yedges)/2
+z_centers = zedges[:-1] + np.diff(zedges)/2
+w_centers = wedges[:-1] + np.diff(wedges)/2
+step=2/20.
+
+newhist=np.zeros((20,20,20))
+
+Ip=
 
 
 #3D histogram, fit A
@@ -307,6 +408,72 @@ plt.plot(np.linspace(3,12,50),power(np.linspace(3,12,50),sol[0],sol[1],sol[2]),c
 plt.xlabel(r'$q^2$ [GeV$^2$]')
 plt.ylabel(r'$A_C^{(1)}({q^2})$')
 plt.title(r'$A_C^{(1)}({q^2})$ curve fit',fontsize=14, color='black')
+plt.legend()
+
+
+""""""
+
+
+
+#3D histogram, fit A1
+
+##No nan requirement
+q2=q2[~np.isnan(chi)]
+chi= chi[~np.isnan(chi)]
+
+
+def func2(x,a,cc,cs):
+        res=a+cc*cos(2*x)+cs*sin(2*x)
+        return res
+
+
+q2_heights, q2_borders, _=plt.hist(q2,bins=np.linspace(min(q2),max(q2),201))
+q2_centers = q2_borders[:-1] + np.diff(q2_borders) / 2
+plt.close()
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+x, y = chi,q2
+hist, xedges, yedges = np.histogram2d(x, y, bins=200)#, range=[[-np.pi, np.pi], [min(q2), max(q2)]])
+plt.close()
+x_centers = xedges[:-1] + np.diff(xedges) / 2
+y_centers = yedges[:-1] + np.diff(yedges) / 2
+
+xv,yv=np.meshgrid(x_centers, y_centers)
+
+fig = plt.figure(figsize=plt.figaspect(0.35))
+ax = plt.axes(projection='3d')
+surf = ax.plot_surface(xv, yv, np.transpose(hist), cmap=cm.coolwarm)
+plt.close()
+
+    
+A1list=[]
+A1err=[]    
+q2err=[]
+q2list=y_centers
+    
+for i in range(len(q2list)):
+        coord=hist[:,i]
+        popt, pcov = curve_fit(func2, x_centers,coord)
+        a,cc,cs=(popt[0],popt[1],popt[2])
+        A1list.append(cs/q2_heights[i])
+        aerr,ccerr,cserr=np.sqrt(np.diag(pcov))
+        A1err.append(cserr/q2_heights[i])
+        q2err.append((max(q2)-min(q2))/200.)
+        
+
+plt.errorbar(q2list,A1list, xerr=q2err,yerr=A1err, fmt='o', color='black',
+             ecolor='lightgray', elinewidth=3, capsize=0)
+
+def power(x,d,e):
+        res=d*x+e
+        return res
+sol,_=curve_fit(power, q2list, A1list, maxfev=2000)
+plt.plot(np.linspace(3,12,50),power(np.linspace(3,12,50),sol[0],sol[1]),color='r',label='linear fit')
+plt.xlabel(r'$q^2$ [GeV$^2$]')
+plt.ylabel(r'$A_9({q^2})$')
+plt.ylim([-0.004,0.004])
+plt.title(r'$A_9({q^2})$ curve fit',fontsize=14, color='black')
 plt.legend()
 
 
