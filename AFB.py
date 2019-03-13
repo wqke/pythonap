@@ -78,15 +78,15 @@ q2err=[]
 
 for i in range(10):
   set1=list(set(costhetal[q2>q2_borders[i]]) & set(costhetal[q2<q2_borders[i+1]]))
-  bin_heights, bin_borders, _=plt.hist(set1,bins=10)
+  bin_heights, bin_borders, _=plt.hist(set1,bins=10,density=1/q2_heights[i])
   bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
   popt, pcov = curve_fit(fitRAB, bin_centers, bin_heights)
   a,b,c=(popt[0],popt[1],popt[2])
-  afb=b/q2_heights[i]
+  afb=b
   AFBlist.append(afb)
   aerr,berr,cerr=np.sqrt(np.diag(pcov))
   
-  errz=berr/q2_heights[i]
+  errz=berr
   AFBerr.append(errz)
   q2err.append((max(q2)-min(q2))/10.)
   plt.close()
