@@ -61,49 +61,47 @@ chi = np.arctan2(si,co)
 costhetast=unitD0.dot(unitDst)
 costhetal=unitDst.dot(unittau)
 q2=(B-Dst).mag2
-q2=q2[~np.isnan(chi)]
-chi= chi[~np.isnan(chi)]
+
 
 
 q2_heights, q2_borders, _=plt.hist(q2,bins=np.linspace(min(q2),max(q2),11)) 
 q2_centers = q2_borders[:-1] + np.diff(q2_borders) / 2
 plt.close()
 
-def fitA3(x,a,cc,cs):
-  res=a+cc*cos(2*x)+cs*sin(2*x)
+def fitRAB(x,a,b,c):
+  res=a+b*x+c*x**2
   return res
   
 q2list=q2_centers
-A3list=[]
-A3err=[]
+RABlist=[]
+RABerr=[]
 q2err=[]
 
 
 for i in range(10):
-  set1=list(set(chi[q2>q2_borders[i]]) & set(chi[q2<q2_borders[i+1]]))
+  set1=list(set(costhetal[q2>q2_borders[i]]) & set(costhetal[q2<q2_borders[i+1]]))
   bin_heights, bin_borders, _=plt.hist(set1,bins=10)
   bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
-  popt, pcov = curve_fit(fitA3, bin_centers, bin_heights)
-  a,cc,cs=(popt[0],popt[1],popt[2])
-  a3=cs/q2_heights[i]
-  
-  A3list.append(a3)
-  aerr,ccerr,cserr=np.sqrt(np.diag(pcov))
-  errz=ccerr/q2_heights[i]
-  A3err.append(errz)
-  q2err.append((max(q2)-min(q2))/10.)
+  popt, pcov = curve_fit(fitRAB, bin_centers, bin_heights)
+  a,b,c=(popt[0],popt[1],popt[2])
+  rab=(a-c)/(2*a+2*c)
+  RABlist.append(rab)
+  aerr,berr,cerr=np.sqrt(np.diag(pcov))
+  errz=rab*np.sqrt( 2*aerr**2/(a-c)**2+2*aerr**2/(2*a+2*c)**2)
+  RABerr.append(errz)
+  q2err.append((max(q2)-min(q2))/20.)
   plt.close()
 
   
-plt.errorbar(q2list,A3list, xerr=q2err,yerr=A3err, fmt='o', color='black',
+plt.errorbar(q2list,RABlist, xerr=q2err,yerr=RABerr, fmt='o', color='black',
              ecolor='lightgray', elinewidth=3, capsize=0)
-
-def power(x,d,e): 
-  res=d*x+e
+def power(x,c,d,e):
+  res=c*x**2+d*x+e
   return res
-sol,_=curve_fit(power, q2list, A3list, maxfev=2000)
-plt.plot(np.linspace(3,12,50),power(np.linspace(3,12,50),sol[0],sol[1]),color='r',label='parabolic fit')
+
+sol,_=curve_fit(power, q2list, RABlist, maxfev=2000)
+plt.plot(np.linspace(3,12,50),power(np.linspace(3,12,50),sol[0],sol[1],sol[2]),color='r',label='parabolic fit')
 plt.xlabel(r'$q^2$ [GeV$^2$]')
-plt.ylabel(r'$A_{9}$ ($q^2$)')
-plt.title(r'$A_{9}$ linear fit',fontsize=14, color='black')
+plt.ylabel(r'$R_{AB}$ ($q^2$)')
+plt.title(r'$R_{AB}$ fit',fontsize=14, color='black')
 plt.legend()
