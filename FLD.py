@@ -68,40 +68,38 @@ q2_heights, q2_borders, _=plt.hist(q2,bins=np.linspace(min(q2),max(q2),11))
 q2_centers = q2_borders[:-1] + np.diff(q2_borders) / 2
 plt.close()
 
-def fitRAB(x,a,b,c):
-  res=a+b*x+c*x**2
+""""""
+
+def fitF1(x,a):
+  res=(0.5*a*x**2)+(0.25-0.25*a)*(1-x**2)
   return res
-  
 q2list=q2_centers
-RABlist=[]
-RABerr=[]
+Flist=[]
+Ferr=[]
 q2err=[]
 
-
 for i in range(10):
-  set1=list(set(costhetal[q2>q2_borders[i]]) & set(costhetal[q2<q2_borders[i+1]]))
-  bin_heights, bin_borders, _=plt.hist(set1,bins=10)
+  set1=list(set(costhetast[q2>q2_borders[i]]) & set(costhetast[q2<q2_borders[i+1]]))
+  bin_heights, bin_borders, _=plt.hist(set1,bins=10,density=1/q2_heights[i])
   bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
-  popt, pcov = curve_fit(fitRAB, bin_centers, bin_heights)
-  a,b,c=(popt[0],popt[1],popt[2])
-  rab=(a-c)/(2*a+2*c)
-  RABlist.append(rab)
-  aerr,berr,cerr=np.sqrt(np.diag(pcov))
-  errz=rab*np.sqrt( 2*aerr**2/(a-c)**2+2*aerr**2/(2*a+2*c)**2)
-  RABerr.append(errz)
-  q2err.append((max(q2)-min(q2))/20.)
+  popt, pcov = curve_fit(fitF1, bin_centers, bin_heights)
+  a=popt[0]
+  Flist.append(a)
+  aerr=np.sqrt(np.diag(pcov))
+  Ferr.append(aerr[0])
+  q2err.append((max(q2)-min(q2))/10.)
   plt.close()
 
   
-plt.errorbar(q2list,RABlist, xerr=q2err,yerr=RABerr, fmt='o', color='black',
+plt.errorbar(q2list,Flist, xerr=q2err,yerr=Ferr, fmt='o', color='black',
              ecolor='lightgray', elinewidth=3, capsize=0)
 def power(x,c,d,e):
   res=c*x**2+d*x+e
   return res
 
-sol,_=curve_fit(power, q2list, RABlist, maxfev=2000)
+sol,_=curve_fit(power, q2list, Flist, maxfev=2000)
 plt.plot(np.linspace(3,12,50),power(np.linspace(3,12,50),sol[0],sol[1],sol[2]),color='r',label='parabolic fit')
 plt.xlabel(r'$q^2$ [GeV$^2$]')
-plt.ylabel(r'$R_{AB}$ ($q^2$)')
-plt.title(r'$R_{AB}$ fit',fontsize=14, color='black')
+plt.ylabel(r'$F_{L}^{D^*}$ ($q^2$)')
+plt.title(r'$F_{L}^{D^*}$ ($q^2$) fit',fontsize=14, color='black')
 plt.legend()
