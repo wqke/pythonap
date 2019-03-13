@@ -71,6 +71,71 @@ bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
 popt, _ = curve_fit(func1, bin_centers, bin_heights)
 ###
 
+
+###Calculate R_LT
+def fitRLT(x,a,c):
+        res=a+c*x**2
+        return res
+
+q2_heights, q2_borders, _=plt.hist(q2,bins=np.linspace(min(q2),max(q2),21))
+q2_centers = q2_borders[:-1] + np.diff(q2_borders) / 2
+plt.close()
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+x, y = costhetast,q2
+hist, xedges, yedges = np.histogram2d(x, y, bins=20, range=[[-1, 1], [min(q2), max(q2)]])
+plt.close()
+x_centers = xedges[:-1] + np.diff(xedges)/2
+y_centers = yedges[:-1] + np.diff(yedges)/2
+
+
+xv,yv=np.meshgrid(x_centers, y_centers)
+
+fig = plt.figure(figsize=plt.figaspect(0.35))
+ax = plt.axes(projection='3d')
+surf = ax.plot_surface(xv, yv, np.transpose(hist), cmap=cm.coolwarm)
+ax.set_xlabel ('costheta_l')
+ax.set_ylabel ('q2')
+plt.close()
+
+RLTlist=[]
+RLTerr=[]
+q2err=[]
+q2list=y_centers
+
+
+for i in range(len(q2list)):
+        coord=hist[...,i]
+        popt, pcov= curve_fit(fitRLT, x_centers,coord)
+        a,c=(popt[0],popt[1])
+        aerr,cerr=np.sqrt(np.diag(pcov))
+        rlt=(a+c)/(2*a)
+        RLTlist.append(rlt)
+        
+        errz=rlt*np.sqrt( 2*aerr**2/(a+c)**2+aerr**2/(a)**2)
+        RLTerr.append(errz)
+        q2err.append((max(q2)-min(q2))/20.)
+        
+plt.errorbar(q2list,RLTlist, xerr=q2err,yerr=RLTerr, fmt='o', color='black',
+             ecolor='lightgray', elinewidth=3, capsize=0)
+
+def power(x,c,d,e):
+        res=c*x**2+d*x+e
+        return res
+sol,_=curve_fit(power, q2list, RLTlist, maxfev=2000)
+plt.plot(np.linspace(3,12,50),power(np.linspace(3,12,50),sol[0],sol[1],sol[2]),color='r',label='parabolic fit')
+plt.xlabel(r'$q^2$ [GeV$^2$]')
+plt.ylabel(r'$R_{L,T}$ ($q^2$)')
+plt.title(r'$R_{L,T}$ curve fit',fontsize=14, color='black')
+plt.legend()
+
+
+
+
+
+
+
 ###Calculate R_AB
 def fitRAB(x,a,b,c):
         res=a+b*x+c*x**2
