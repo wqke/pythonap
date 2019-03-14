@@ -91,7 +91,7 @@ for i in range(10):
   aerr,ccerr,cserr=np.sqrt(np.diag(pcov))
   errz=cserr
   A3err.append(errz)
-  q2err.append((max(q2)-min(q2))/10.)
+  q2err.append((max(q2)-min(q2))/20.)
   plt.close()
 
   
