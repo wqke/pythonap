@@ -76,7 +76,7 @@ RLTerr=[]
 q2err=[]
 for i in range(10):
   set1=list(set(costhetast[q2>q2_borders[i]]) & set(costhetast[q2<q2_borders[i+1]]))
-  bin_heights, bin_borders, _=plt.hist(set1,bins=10)
+  bin_heights, bin_borders, _=plt.hist(set1,bins=10,density=1/q2_heights[i])
   bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
   popt, pcov = curve_fit(fitRLT, bin_centers, bin_heights)
   a,c=(popt[0],popt[1])
