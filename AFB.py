@@ -62,7 +62,7 @@ costhetast=unitD0.dot(unitDst)
 costhetal=unitDst.dot(unittau)
 q2=(B-Dst).mag2
 
-q2_heights, q2_borders, _=plt.hist(q2,bins=np.linspace(min(q2),max(q2),5)) 
+q2_heights, q2_borders, _=plt.hist(q2,bins=np.linspace(min(q2),max(q2),11)) 
 q2_centers = q2_borders[:-1] + np.diff(q2_borders) / 2
 plt.close()
 
@@ -76,9 +76,9 @@ AFBerr=[]
 q2err=[]
 
 
-for i in range(4):
+for i in range(10):
   set1=list(set(costhetal[q2>q2_borders[i]]) & set(costhetal[q2<q2_borders[i+1]]))
-  bin_heights, bin_borders, _=plt.hist(set1,bins=4,density=1/q2_heights[i])
+  bin_heights, bin_borders, _=plt.hist(set1,bins=10,density=1/q2_heights[i])
   bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
   popt, pcov = curve_fit(fitRAB, bin_centers, bin_heights)
   a,b,c=(popt[0],popt[1],popt[2])
@@ -88,7 +88,7 @@ for i in range(4):
   
   errz=berr
   AFBerr.append(errz)
-  q2err.append((max(q2)-min(q2))/8.)
+  q2err.append((max(q2)-min(q2))/20.)
   plt.close()
 
   
