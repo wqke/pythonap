@@ -85,11 +85,11 @@ for i in range(10):
   bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
   popt, pcov = curve_fit(fitA3, bin_centers, bin_heights)
   a,cc,cs=(popt[0],popt[1],popt[2])
-  a3=cc
+  a3=cs
   
   A3list.append(a3)
   aerr,ccerr,cserr=np.sqrt(np.diag(pcov))
-  errz=ccerr
+  errz=cserr
   A3err.append(errz)
   q2err.append((max(q2)-min(q2))/10.)
   plt.close()
@@ -102,8 +102,11 @@ def power(x,d,e):
   res=d*x+e
   return res
 sol,_=curve_fit(power, q2list, A3list, maxfev=2000)
-plt.plot(np.linspace(3,12,50),power(np.linspace(3,12,50),sol[0],sol[1],sol[2]),color='r',label='parabolic fit')
+plt.plot(np.linspace(3,12,50),power(np.linspace(3,12,50),sol[0],sol[1]),color='r',label='linear fit')
 plt.xlabel(r'$q^2$ [GeV$^2$]')
-plt.ylabel(r'$A_{3}$ ($q^2$)')
-plt.title(r'$A_{3}$ fit',fontsize=14, color='black')
+plt.ylabel(r'$A_{9}$ ($q^2$)')
+plt.title(r'$A_{9}$',fontsize=14, color='black')
+plt.xlim()
+plt.ylim()
+plt.grid(linestyle='-', linewidth='0.5', color='gray')
 plt.legend()
