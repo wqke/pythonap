@@ -80,7 +80,7 @@ q2err=[]
 
 for i in range(10):
   set1=list(set(costhetal[q2>q2_borders[i]]) & set(costhetal[q2<q2_borders[i+1]]))
-  bin_heights, bin_borders, _=plt.hist(set1,bins=10)
+  bin_heights, bin_borders, _=plt.hist(set1,bins=10,density=1/q2_heights[i])
   bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
   popt, pcov = curve_fit(fitRAB, bin_centers, bin_heights)
   a,b,c=(popt[0],popt[1],popt[2])
