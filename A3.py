@@ -85,11 +85,11 @@ for i in range(4):
   bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
   popt, pcov = curve_fit(fitA3, bin_centers, bin_heights)
   a,cc,cs=(popt[0],popt[1],popt[2])
-  a3=cs
+  a3=cc
   
   A3list.append(a3)
   aerr,ccerr,cserr=np.sqrt(np.diag(pcov))
-  errz=cserr
+  errz=ccerr
   A3err.append(errz)
   q2err.append((max(q2)-min(q2))/8.)
   plt.close()
