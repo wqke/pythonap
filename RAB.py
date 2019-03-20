@@ -103,7 +103,7 @@ def power(x,c,d,e):
   return res
 
 sol,_=curve_fit(power, q2list, RABlist, maxfev=2000)
-plt.plot(np.linspace(3,12,50),power(np.linspace(min(q2_borders),max(q2_borders),50),sol[0],sol[1],sol[2]),color='#CC4F1B')
+plt.plot(np.linspace(min(q2_borders),max(q2_borders),50),power(np.linspace(min(q2_borders),max(q2_borders),50),sol[0],sol[1],sol[2]),color='#CC4F1B')
 plt.xlabel(r'$q^2$ [GeV$^2$]')
 plt.ylabel(r'$R_{AB}$ ($q^2$)')
 plt.title(r'$R_{AB}$',fontsize=14, color='black')
