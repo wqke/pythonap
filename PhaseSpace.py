@@ -53,28 +53,38 @@ pitau1=LorentzVector(df['Tau_Pi1_PX_TRUE'],df['Tau_Pi1_PY_TRUE'],df['Tau_Pi1_PZ_
 pitau2=LorentzVector(df['Tau_Pi2_PX_TRUE'],df['Tau_Pi2_PY_TRUE'],df['Tau_Pi2_PZ_TRUE'],df['Tau_Pi2_E_TRUE'])
 pitau3=LorentzVector(df['Tau_Pi3_PX_TRUE'],df['Tau_Pi3_PY_TRUE'],df['Tau_Pi3_PZ_TRUE'],df['Tau_Pi3_E_TRUE'])
 nutau=LorentzVector(df['Tau_nu_PX_TRUE'],df['Tau_nu_PY_TRUE'],df['Tau_nu_PZ_TRUE'],df['Tau_nu_E_TRUE'])
-
 nouvtau=tau.boost(-(tau+nuB).boostp3)
 nouvnu=nuB.boost(-(tau+nuB).boostp3)
 nouvpi=piDst.boost(-(piDst+D0).boostp3)
 nouvD0=D0.boost(-(piDst+D0).boostp3)
 nouvDst=D0.boost(-B.boostp3)
-
-
 unittau=(nouvtau.p3).unit
 unitnu=(nouvnu.p3).unit
 unitDst=(nouvDst.p3).unit
 unitD0=(nouvD0.p3).unit
+nnewtau=tau.boost(-B.boostp3)
+nnewD0=D0.boost(-B.boostp3)
+unitau=nnewtau.unit
+uniD0=nnewD0.unit
+nnormal1=unitDst.cross(uniD0)
+normal1=nnormal1.unit
+nnormal2=unitDst.cross(unitau)
+normal2=nnormal2.unit
+pparallel=normal1.cross(unitDst)
+parallel=pparallel.unit
 
-normal1=unittau.cross(unitDst)
-normal2=unitDst.cross(unitD0)
-coski=normal1.dot(normal2)
+co = normal1.dot(normal2)
+si = parallel.dot(normal2)
+
+
+
+
+chi = np.arctan2(si,co)
+
+
+
 costhetast=unitD0.dot(unitDst)
 costhetal=unitDst.dot(unittau)
-
-chi=np.arccos(coski)
-thetast=np.arccos(costhetast)
-thetal=np.arccos(costhetal)
 ############################################################################
 def boost_frame(vect):
     newB=B.boost(-vect.boostp3)
