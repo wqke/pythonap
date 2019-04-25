@@ -101,13 +101,17 @@ bkg_files={}
 for bkg in bkg_names:
   bkg_files[bkg] = "/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Merged_Bkg/%s.root" % bkg
 
+tot=0.
+tot1=0.
 for bkg in bkg_names:
   df=read_root(bkg_files[bkg],key="DecayTree",columns=["q2_reco"])
+  tot+=len(df)
   df=df.sample(n=int(evt[bkg]),random_state=int(evt[bkg]))
   df=df.query("q2_reco > %s and q2_reco <= %s" % (q2_min,q2_max))
+  tot1+=len(df)
   print bkg,":",len(df)
   
-  
+print(tot1/tot)
   
   
   
