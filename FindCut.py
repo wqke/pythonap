@@ -115,5 +115,11 @@ print(tot1/tot)
   
   
   
-  
-  
+from root_pandas import *	
+def inter(lst1, lst2):
+    return list(set(lst1) & set(lst2))
+
+columns=[ 'Tau_FD_z',  'Tau_M', 'Tau_E','Tau_P', '3pi_M', '3pi_PZ', 'Tau_m12', 'Tau_m13','Tau_m23',
+         'Tau_FD', 'costheta_D_reco','costheta_L_reco','q2_reco','Tau_PZ_reco','Tau_PT',
+        'chi_reco', 'Tau_life_reco']
+
